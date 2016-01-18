@@ -19,7 +19,7 @@ func newPortList() *PortList {
 	return retval
 }
 
-func (p *PortList) update(t time.Time, secret *Secret) {
+func (p *PortList) update(t time.Time, secret *[]byte) {
 	epochTime := t.Unix() / int64(refreshInterval.Seconds())
 	p.ports[1] = p.ports[0]
 	p.ports[0] = make([]int, knockSequenceLength)
@@ -32,13 +32,15 @@ func (p *PortList) update(t time.Time, secret *Secret) {
 
 	hasher.Reset()
 	hasher.Write(result)
-	hasher.Write([]byte(*secret))
+	hasher.Write(*secret)
 	master := hasher.Sum(nil)
 
 	for _, i := range p.ports[0] {
 		hasher.Reset()
 		hasher.Write(master)
 		binary.Write(hasher, binary.LittleEndian, i)
-		finalHash := hasher.Sum(nil)
+		//		finalHash := hasher.Sum(nil)
+		//		binary.Read()
+		//		rand.New(rand.NewSource())
 	}
 }

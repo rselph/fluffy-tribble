@@ -46,7 +46,7 @@ func isSafeConfig() bool {
 		fmt.Println("Creating new secret.")
 
 		secret := newSecret(defaultSecretSize)
-		err = secret.saveTo(ftSecretFile)
+		err = saveSecretTo(ftSecretFile, secret)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			return false

@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func runServer(s *Secret) {
+func runServer(s *[]byte) {
 	ports := newPortList()
 	startTime := time.Now()
 	ports.update(startTime.Add(-refreshInterval), s)
