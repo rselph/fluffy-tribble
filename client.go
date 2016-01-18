@@ -1,6 +1,6 @@
 // client.go
 package main
 
-func runClient() {
+func runClient(s *Secret) {
 
 }

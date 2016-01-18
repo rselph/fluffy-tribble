@@ -55,3 +55,30 @@ func (s *Secret) saveTo(fname string) error {
 
 	return nil
 }
+
+func readSecret(r io.Reader, size int) (*Secret, error) {
+	bytes := Secret(make([]byte, size))
+
+	bytesRead := 0
+	for bytesRead < size {
+		bytesLeft := bytes[bytesRead:]
+		n, err := r.Read(bytesLeft)
+		if err != nil {
+			return nil, err
+		}
+		bytesRead += n
+	}
+
+	return &bytes, nil
+}
+
+func readSecretFrom(fname string) (*Secret, error) {
+	f, err := os.Open(fname)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	fstat, _ := f.Stat()
+	return readSecret(f, int(fstat.Size()))
+}

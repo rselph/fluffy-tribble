@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 )
 
 var isServer bool
@@ -13,6 +14,10 @@ var ftSecretFile = "secret"
 var ftServerFile = "server"
 var ftClientFile = "client"
 var defaultSecretSize = 1024
+var knockSequenceLength = 10
+var portRangeLow = 20000
+var portRangeHigh = 30000
+var refreshInterval = 10 * time.Second
 
 func main() {
 	fmt.Println("fluffy-tribble")
@@ -27,10 +32,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	s, err := readSecretFrom(ftSecretFile)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
 	if isServer {
-		runServer()
+		runServer(s)
 	} else {
-		runClient()
+		runClient(s)
 	}
 }
 

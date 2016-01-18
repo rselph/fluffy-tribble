@@ -1,6 +1,21 @@
 // server.go
 package main
 
-func runServer() {
+import (
+	"time"
+)
 
+func runServer(s *Secret) {
+	ports := newPortList()
+	startTime := time.Now()
+	ports.update(startTime.Add(-refreshInterval), s)
+	ports.update(startTime, s)
+
+	ticktock := time.Tick(refreshInterval * time.Second)
+	for true {
+		select {
+		case <-ticktock:
+
+		}
+	}
 }
