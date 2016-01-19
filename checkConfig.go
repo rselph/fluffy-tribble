@@ -54,8 +54,8 @@ func isSafeConfig() bool {
 		secretInfo, err = os.Lstat(ftSecretFile)
 	}
 
-	if secretInfo.Mode().Perm()&077 != 0 {
-		fmt.Fprintf(os.Stderr, "Wrong permissions on %s.  Should be accessible only to owner.\n", ftSecretFile)
+	if !secretInfo.Mode().IsRegular() || secretInfo.Mode().Perm()&077 != 0 {
+		fmt.Fprintf(os.Stderr, "Wrong permission or type on %s.  Should be a regular file accessible only to owner.\n", ftSecretFile)
 		return false
 	}
 
@@ -74,8 +74,8 @@ func isSafeConfig() bool {
 		return false
 	}
 
-	if scriptInfo.Mode().Perm()&077 != 0 {
-		fmt.Fprintf(os.Stderr, "Wrong permissions on %s.  Should be accessible only to owner.\n", scriptFile)
+	if !scriptInfo.Mode().IsRegular() || scriptInfo.Mode().Perm()&077 != 0 {
+		fmt.Fprintf(os.Stderr, "Wrong permission or type on %s.  Should be a regular file accessible only to owner.\n", scriptFile)
 		return false
 	}
 

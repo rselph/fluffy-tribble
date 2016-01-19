@@ -16,8 +16,8 @@ var ftClientFile = "client"
 var defaultSecretSize = 1024
 var knockSequenceLength = 10
 var portRangeLow = 20000
-var portRangeHigh = 30000
-var refreshInterval = 10 * time.Second
+var portRangeHigh = 21000
+var refreshInterval = 1 * time.Second
 
 func main() {
 	fmt.Println("fluffy-tribble")

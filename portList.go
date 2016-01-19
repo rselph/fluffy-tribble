@@ -2,29 +2,45 @@
 package main
 
 import (
-	"crypto/sha512"
+	"bytes"
+	"crypto"
+	_ "crypto/sha256"
 	"encoding/binary"
 	"time"
 )
 
 type PortList struct {
-	ports      [][]int
-	knockState []int
+	current        []int
+	previous       []int
+	secret         *[]byte
+	sequenceLength int
+	mask           int
+	hi, lo         int
 }
 
-func newPortList() *PortList {
-	retval := &PortList{}
-	retval.ports = make([][]int, 2)
-	retval.knockState = make([]int, knockSequenceLength)
+func newPortList(secret *[]byte, sequenceLength, hi, lo int) *PortList {
+	retval := &PortList{
+		secret:         secret,
+		sequenceLength: sequenceLength,
+		hi:             hi,
+		lo:             lo,
+	}
+
+	mask := 1
+	for mask <= (hi - lo) {
+		mask = mask << 1
+	}
+	mask -= 1
+	retval.mask = mask
+
 	return retval
 }
 
-func (p *PortList) update(t time.Time, secret *[]byte) {
+func (p *PortList) update(t time.Time) {
 	epochTime := t.Unix() / int64(refreshInterval.Seconds())
-	p.ports[1] = p.ports[0]
-	p.ports[0] = make([]int, knockSequenceLength)
+	p.current = make([]int, p.sequenceLength)
 
-	hasher := sha512.New()
+	hasher := crypto.SHA256.New()
 
 	hasher.Reset()
 	binary.Write(hasher, binary.LittleEndian, epochTime)
@@ -32,15 +48,34 @@ func (p *PortList) update(t time.Time, secret *[]byte) {
 
 	hasher.Reset()
 	hasher.Write(result)
-	hasher.Write(*secret)
+	hasher.Write(*p.secret)
 	master := hasher.Sum(nil)
 
-	for _, i := range p.ports[0] {
-		hasher.Reset()
-		hasher.Write(master)
-		binary.Write(hasher, binary.LittleEndian, i)
-		//		finalHash := hasher.Sum(nil)
-		//		binary.Read()
-		//		rand.New(rand.NewSource())
+	n := int64(0)
+	for i := range p.current {
+		p.current[i], n = nextPort(&master, n, p)
 	}
+}
+
+func nextPort(master *[]byte, n int64, p *PortList) (int, int64) {
+	hasher := crypto.SHA256.New()
+
+	port := p.hi
+	for port >= p.hi {
+		hasher.Reset()
+		hasher.Write(*master)
+		binary.Write(hasher, binary.LittleEndian, n)
+		finalHash := hasher.Sum(nil)
+
+		var portTmp int64
+		binary.Read(bytes.NewReader(finalHash), binary.LittleEndian, &portTmp)
+		port = int(portTmp)
+
+		port &= p.mask
+		port += p.lo
+
+		n += 1
+	}
+
+	return port, n
 }

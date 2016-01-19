@@ -9,8 +9,6 @@ import (
 	"os"
 )
 
-//type Secret []byte
-
 func newSecret(size int) *[]byte {
 	bytes := make([]byte, size)
 
