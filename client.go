@@ -3,6 +3,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"os/exec"
@@ -51,10 +52,18 @@ func runClient(s *[]byte) {
 func tryInterval(i int64, ports *PortList) error {
 	ports.update(i)
 
+	buf := make([]byte, 1)
 	for _, port := range ports.current {
 		dialString := net.JoinHostPort(remoteHost, fmt.Sprintf("%d", port))
 		conn, err := net.Dial("tcp", dialString)
 		if err != nil {
+			return err
+		}
+
+		for err == nil {
+			_, err = conn.Read(buf)
+		}
+		if err != io.EOF {
 			return err
 		}
 		conn.Close()
