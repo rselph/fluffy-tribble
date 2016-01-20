@@ -11,6 +11,7 @@ import (
 func runClient(s *[]byte) {
 	ports := newPortList(s, knockSequenceLength, 3, portRangeHigh, portRangeLow)
 
+	startedAt := time.Now()
 	nowInterval := interval(time.Now())
 	ports.update(nowInterval - 3)
 	ports.update(nowInterval - 2)
@@ -28,7 +29,9 @@ func runClient(s *[]byte) {
 		}
 
 		if !succeeded {
-			os.Exit(1)
+			if time.Since(startedAt) >= connectTimeout {
+				os.Exit(1)
+			}
 			time.Sleep(250 * time.Millisecond)
 			nowInterval = interval(time.Now())
 		}
