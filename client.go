@@ -9,18 +9,17 @@ import (
 )
 
 func runClient(s *[]byte) {
-	ports := newPortList(s, knockSequenceLength, 3, portRangeHigh, portRangeLow)
-
 	startedAt := time.Now()
-	nowInterval := interval(time.Now())
-	ports.update(nowInterval - 3)
-	ports.update(nowInterval - 2)
 
 	succeeded := false
-	var err error
 	for !succeeded {
+		ports := newPortList(s, knockSequenceLength, 3, portRangeHigh, portRangeLow)
+		nowInterval := interval(time.Now())
+		ports.update(nowInterval - 3)
+		ports.update(nowInterval - 2)
+
 		for delta := int64(-1); delta < 2; delta += 1 {
-			err = tryInterval(nowInterval+delta, ports)
+			err := tryInterval(nowInterval+delta, ports)
 			if err == nil {
 				succeeded = true
 				break
@@ -33,7 +32,6 @@ func runClient(s *[]byte) {
 				os.Exit(1)
 			}
 			time.Sleep(250 * time.Millisecond)
-			nowInterval = interval(time.Now())
 		}
 	}
 
