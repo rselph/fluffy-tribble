@@ -7,10 +7,11 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"strconv"
 	"time"
 )
 
-func runClient(s *[]byte) {
+func runClient(s *[]byte, cmdLine []string) {
 	startedAt := time.Now()
 
 	succeeded := false
@@ -38,13 +39,13 @@ func runClient(s *[]byte) {
 	}
 
 	//	fmt.Println("CONNECT SUCCESSFUL")
-	cmd := exec.Command(ftClientFile)
+	cmd := exec.Command(cmdLine[0], cmdLine[1:]...)
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	err := cmd.Run()
 	if err != nil {
-		fmt.Fprint(os.Stderr, err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
@@ -54,7 +55,7 @@ func tryInterval(i int64, ports *PortList) error {
 
 	buf := make([]byte, 1)
 	for _, port := range ports.current {
-		dialString := net.JoinHostPort(remoteHost, fmt.Sprintf("%d", port))
+		dialString := net.JoinHostPort(remoteHost, strconv.Itoa(port))
 		conn, err := net.Dial("tcp", dialString)
 		if err != nil {
 			return err

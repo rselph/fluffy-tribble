@@ -26,6 +26,9 @@ func main() {
 	flag.CommandLine.SetOutput(os.Stdout)
 	flag.BoolVar(&isServer, "s", false, "Run as server daemon")
 	flag.Parse()
+	if len(flag.Args()) > 0 {
+		remoteHost = flag.Arg(0)
+	}
 
 	if !isSafeConfig() {
 		fmt.Fprintln(os.Stderr, "Exiting.")
@@ -41,7 +44,14 @@ func main() {
 	if isServer {
 		runServer(s)
 	} else {
-		runClient(s)
+		var cmdLine []string
+		if len(flag.Args()) > 1 {
+			cmdLine = flag.Args()[1:]
+		} else {
+			cmdLine = []string{ftClientFile}
+		}
+
+		runClient(s, cmdLine)
 	}
 }
 
