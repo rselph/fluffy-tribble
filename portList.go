@@ -13,7 +13,7 @@ import (
 type PortList struct {
 	newList        []int
 	current        []int
-	previous       []int
+	history        [][]int
 	secret         *[]byte
 	sequenceLength int
 	mask           int
@@ -21,13 +21,14 @@ type PortList struct {
 	testSequence   []int
 }
 
-func newPortList(secret *[]byte, sequenceLength, hi, lo int) *PortList {
+func newPortList(secret *[]byte, sequenceLength, historyLength, hi, lo int) *PortList {
 	p := &PortList{
 		secret:         secret,
 		sequenceLength: sequenceLength,
 		hi:             hi,
 		lo:             lo,
 	}
+	p.history = make([][]int, historyLength)
 	p.testSequence = make([]int, sequenceLength)
 
 	mask := 1
@@ -40,14 +41,17 @@ func newPortList(secret *[]byte, sequenceLength, hi, lo int) *PortList {
 	return p
 }
 
-func (p *PortList) update(t time.Time) {
-	epochTime := t.Unix() / int64(refreshInterval.Seconds())
+func interval(t time.Time) int64 {
+	return t.Unix() / int64(refreshInterval.Seconds())
+}
+
+func (p *PortList) update(intervalNum int64) {
 	p.newList = make([]int, p.sequenceLength)
 
 	hasher := crypto.SHA256.New()
 
 	hasher.Reset()
-	binary.Write(hasher, binary.LittleEndian, epochTime)
+	binary.Write(hasher, binary.LittleEndian, intervalNum)
 	result := hasher.Sum(nil)
 
 	hasher.Reset()
@@ -60,7 +64,8 @@ func (p *PortList) update(t time.Time) {
 		p.newList[i], n = nextPort(&master, n, p)
 	}
 
-	p.previous = p.current
+	copy(p.history[1:], p.history)
+	p.history[0] = p.newList
 	p.current = p.newList
 	p.newList = nil
 }
@@ -99,15 +104,11 @@ func shouldRejectPort(port int, p *PortList) bool {
 		}
 	}
 
-	for _, oldPort := range p.current {
-		if port == oldPort {
-			return true
-		}
-	}
-
-	for _, oldPort := range p.previous {
-		if port == oldPort {
-			return true
+	for _, list := range p.history {
+		for _, oldPort := range list {
+			if port == oldPort {
+				return true
+			}
 		}
 	}
 
@@ -116,5 +117,12 @@ func shouldRejectPort(port int, p *PortList) bool {
 
 func (p *PortList) checkFull(port int) bool {
 	p.testSequence = append(p.testSequence[1:], port)
-	return reflect.DeepEqual(p.current, p.testSequence) || reflect.DeepEqual(p.previous, p.testSequence)
+
+	for _, list := range p.history {
+		if reflect.DeepEqual(list, p.testSequence) {
+			return true
+		}
+	}
+
+	return false
 }

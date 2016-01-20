@@ -18,6 +18,7 @@ var knockSequenceLength = 10
 var portRangeLow = 20000
 var portRangeHigh = 21000
 var refreshInterval = 1 * time.Second
+var remoteHost = "localhost"
 
 func main() {
 	fmt.Println("fluffy-tribble")
