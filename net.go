@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-func openPorts(ports []int, events chan int, wg *sync.WaitGroup) ([]net.Listener, error) {
+func openPorts(ports []int, events chan net.Conn, wg *sync.WaitGroup) ([]net.Listener, error) {
 	returnListeners := make([]net.Listener, len(ports))
 	for i, port := range ports {
 		addr := fmt.Sprintf(":%d", port)
@@ -31,7 +31,7 @@ func closePorts(ports []net.Listener) {
 	}
 }
 
-func portWatcher(ln net.Listener, port int, events chan int, wg *sync.WaitGroup) {
+func portWatcher(ln net.Listener, port int, events chan net.Conn, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	for true {
@@ -39,7 +39,6 @@ func portWatcher(ln net.Listener, port int, events chan int, wg *sync.WaitGroup)
 		if err != nil {
 			return
 		}
-		conn.Close()
-		events <- port
+		events <- conn
 	}
 }

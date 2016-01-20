@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"os/exec"
 	"time"
 )
 
@@ -35,7 +36,16 @@ func runClient(s *[]byte) {
 		}
 	}
 
-	fmt.Println("CONNECT SUCCESSFUL")
+	//	fmt.Println("CONNECT SUCCESSFUL")
+	cmd := exec.Command(ftClientFile)
+	cmd.Stdin = os.Stdin
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	err := cmd.Run()
+	if err != nil {
+		fmt.Fprint(os.Stderr, err)
+		os.Exit(1)
+	}
 }
 
 func tryInterval(i int64, ports *PortList) error {

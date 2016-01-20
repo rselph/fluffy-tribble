@@ -4,6 +4,10 @@ package main
 import (
 	"fmt"
 	"net"
+	"os"
+	"os/exec"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -15,7 +19,7 @@ func runServer(s *[]byte) {
 	ports := newPortList(s, knockSequenceLength, historyLength, portRangeHigh, portRangeLow)
 
 	wg := &sync.WaitGroup{}
-	events := make(chan int)
+	events := make(chan net.Conn)
 	var listeners [][]net.Listener = make([][]net.Listener, historyLength)
 
 	updateListenState := func(intervalNum int64) error {
@@ -46,10 +50,28 @@ func runServer(s *[]byte) {
 				last = present
 			}
 
-		case port := <-events:
+		case conn := <-events:
+			laddr := conn.LocalAddr().String()
+			portString := laddr[strings.LastIndex(laddr, ":")+1:]
+			port, _ := strconv.Atoi(portString)
 			if ports.checkFull(port) {
-				// do server stuff!!
-				fmt.Println("KNOCK SUCCEEDED")
+				//				fmt.Println("KNOCK SUCCEEDED")
+				cmd := exec.Command(ftServerFile)
+				cmd.Stderr = os.Stderr
+				cmd.Stdout = os.Stdout
+				err := cmd.Start()
+				time.Sleep(100 * time.Millisecond)
+				conn.Close()
+				if err != nil {
+					fmt.Fprint(os.Stderr, err)
+				} else {
+					err = cmd.Wait()
+					if err != nil {
+						fmt.Fprint(os.Stderr, err)
+					}
+				}
+			} else {
+				conn.Close()
 			}
 		}
 	}
