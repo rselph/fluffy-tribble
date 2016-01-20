@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"os/user"
 	"strconv"
 	"strings"
 	"sync"
@@ -57,22 +58,20 @@ func runServer(s *[]byte) {
 			if ports.checkFull(port) {
 				//				fmt.Println("KNOCK SUCCEEDED")
 				cmd := exec.Command(ftServerFile)
+				cmd.Stdin = os.Stdin
 				cmd.Stderr = os.Stderr
 				cmd.Stdout = os.Stdout
+				me, _ := user.Current()
+				cmd.Dir = me.HomeDir
 				err := cmd.Start()
 				time.Sleep(100 * time.Millisecond)
-				conn.Close()
 				if err != nil {
 					fmt.Fprint(os.Stderr, err)
 				} else {
-					err = cmd.Wait()
-					if err != nil {
-						fmt.Fprint(os.Stderr, err)
-					}
+					go cmd.Wait()
 				}
-			} else {
-				conn.Close()
 			}
+			conn.Close()
 		}
 	}
 }
