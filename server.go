@@ -9,6 +9,8 @@ import (
 )
 
 func runServer(s *[]byte) {
+	fmt.Println("fluffy-tribble")
+
 	historyLength := 3
 	ports := newPortList(s, knockSequenceLength, historyLength, portRangeHigh, portRangeLow)
 
@@ -18,7 +20,6 @@ func runServer(s *[]byte) {
 
 	updateListenState := func(intervalNum int64) error {
 		ports.update(intervalNum)
-		fmt.Println(ports.current)
 		newListeners, err := openPorts(ports.current, events, wg)
 		if err != nil {
 			return err
@@ -46,7 +47,6 @@ func runServer(s *[]byte) {
 			}
 
 		case port := <-events:
-			fmt.Printf(">%v\n", port)
 			if ports.checkFull(port) {
 				// do server stuff!!
 				fmt.Println("KNOCK SUCCEEDED")

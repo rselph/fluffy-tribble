@@ -24,11 +24,11 @@ func runClient(s *[]byte) {
 				succeeded = true
 				break
 			}
-			fmt.Printf("FAIL: %v\n", err)
 		}
 
 		if !succeeded {
 			if time.Since(startedAt) >= connectTimeout {
+				fmt.Println("CONNECT FAILED")
 				os.Exit(1)
 			}
 			time.Sleep(250 * time.Millisecond)
@@ -41,7 +41,6 @@ func runClient(s *[]byte) {
 func tryInterval(i int64, ports *PortList) error {
 	ports.update(i)
 
-	fmt.Println(ports.current)
 	for _, port := range ports.current {
 		dialString := net.JoinHostPort(remoteHost, fmt.Sprintf("%d", port))
 		conn, err := net.Dial("tcp", dialString)

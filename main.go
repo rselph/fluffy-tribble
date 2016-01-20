@@ -22,8 +22,6 @@ var remoteHost = "localhost"
 var connectTimeout = 5 * time.Second
 
 func main() {
-	fmt.Println("fluffy-tribble")
-
 	flag.Usage = usage
 	flag.CommandLine.SetOutput(os.Stdout)
 	flag.BoolVar(&isServer, "s", false, "Run as server daemon")
