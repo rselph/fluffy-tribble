@@ -43,6 +43,7 @@ func runClient(s *[]byte, cmdLine []string) {
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
+	cmd.Env = append(os.Environ(), fmt.Sprintf("FLUFFY_TRIBBLE_HOST=%s", remoteHost))
 	err := cmd.Run()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
