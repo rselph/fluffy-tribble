@@ -58,7 +58,6 @@ func runServer(s *[]byte) {
 			if ports.checkFull(port) {
 				//				fmt.Println("KNOCK SUCCEEDED")
 				cmd := exec.Command(ftServerFile)
-				cmd.Stdin = os.Stdin
 				cmd.Stderr = os.Stderr
 				cmd.Stdout = os.Stdout
 				me, _ := user.Current()
