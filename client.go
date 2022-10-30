@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func runClient(s *[]byte, cmdLine []string) {
+func runClient(s []byte, cmdLine []string) {
 	startedAt := time.Now()
 
 	succeeded := false

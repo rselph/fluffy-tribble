@@ -14,14 +14,14 @@ type PortList struct {
 	newList        []int
 	current        []int
 	history        [][]int
-	secret         *[]byte
+	secret         []byte
 	sequenceLength int
 	mask           int
 	hi, lo         int
 	testSequence   []int
 }
 
-func newPortList(secret *[]byte, sequenceLength, historyLength, hi, lo int) *PortList {
+func newPortList(secret []byte, sequenceLength, historyLength, hi, lo int) *PortList {
 	p := &PortList{
 		secret:         secret,
 		sequenceLength: sequenceLength,
@@ -56,7 +56,7 @@ func (p *PortList) update(intervalNum int64) {
 
 	hasher.Reset()
 	hasher.Write(result)
-	hasher.Write(*p.secret)
+	hasher.Write(p.secret)
 	master := hasher.Sum(nil)
 
 	n := int64(0)

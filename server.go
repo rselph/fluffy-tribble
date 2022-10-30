@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-func runServer(s *[]byte) {
+func runServer(s []byte) {
 	fmt.Println("fluffy-tribble")
 
 	historyLength := 3
