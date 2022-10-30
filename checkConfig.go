@@ -11,7 +11,7 @@ import (
 func isSafeConfig() bool {
 	me, err := user.Current()
 	if err != nil {
-		fmt.Println(os.Stderr, err)
+		fmt.Fprintln(os.Stderr, err)
 		return false
 	}
 
@@ -19,7 +19,7 @@ func isSafeConfig() bool {
 
 	dirInfo, err := os.Lstat(ftDir)
 	if err != nil {
-		fmt.Println(os.Stderr, err)
+		fmt.Fprintln(os.Stderr, err)
 		fmt.Println("Creating directory.")
 		err = os.MkdirAll(ftDir, 0700)
 		if err != nil {
@@ -42,7 +42,7 @@ func isSafeConfig() bool {
 	ftSecretFile = filepath.Join(ftDir, ftSecretFile)
 	secretInfo, err := os.Lstat(ftSecretFile)
 	if err != nil {
-		fmt.Println(os.Stderr, err)
+		fmt.Fprintln(os.Stderr, err)
 		fmt.Println("Creating new secret.")
 
 		secret := newSecret(defaultSecretSize)
