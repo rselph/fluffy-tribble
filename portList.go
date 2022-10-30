@@ -51,7 +51,7 @@ func (p *PortList) update(intervalNum int64) {
 	hasher := crypto.SHA256.New()
 
 	hasher.Reset()
-	binary.Write(hasher, binary.LittleEndian, intervalNum)
+	_ = binary.Write(hasher, binary.LittleEndian, intervalNum)
 	result := hasher.Sum(nil)
 
 	hasher.Reset()
@@ -61,7 +61,7 @@ func (p *PortList) update(intervalNum int64) {
 
 	n := int64(0)
 	for i := range p.newList {
-		p.newList[i], n = nextPort(&master, n, p)
+		p.newList[i], n = nextPort(master, n, p)
 	}
 
 	copy(p.history[1:], p.history)
@@ -70,18 +70,18 @@ func (p *PortList) update(intervalNum int64) {
 	p.newList = nil
 }
 
-func nextPort(master *[]byte, n int64, p *PortList) (int, int64) {
+func nextPort(master []byte, n int64, p *PortList) (int, int64) {
 	hasher := crypto.SHA256.New()
 
 	port := p.hi
 	for shouldRejectPort(port, p) {
 		hasher.Reset()
-		hasher.Write(*master)
-		binary.Write(hasher, binary.LittleEndian, n)
+		hasher.Write(master)
+		_ = binary.Write(hasher, binary.LittleEndian, n)
 		finalHash := hasher.Sum(nil)
 
 		var portTmp int64
-		binary.Read(bytes.NewReader(finalHash), binary.LittleEndian, &portTmp)
+		_ = binary.Read(bytes.NewReader(finalHash), binary.LittleEndian, &portTmp)
 		port = int(portTmp)
 
 		port &= p.mask
