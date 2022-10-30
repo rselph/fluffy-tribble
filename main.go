@@ -8,18 +8,23 @@ import (
 	"time"
 )
 
-var isServer bool
-var ftDir string = ".fluffy-tribble"
-var ftSecretFile = "secret"
-var ftServerFile = "server"
-var ftClientFile = "client"
-var defaultSecretSize = 1024
-var knockSequenceLength = 10
-var portRangeLow = 20000
-var portRangeHigh = 21000
-var refreshInterval = 10 * time.Second
-var remoteHost = "localhost"
-var connectTimeout = 5 * time.Second
+const (
+	defaultSecretSize   = 1024
+	knockSequenceLength = 10
+	portRangeLow        = 20000
+	portRangeHigh       = 21000
+	refreshInterval     = 10 * time.Second
+	connectTimeout      = 5 * time.Second
+)
+
+var (
+	isServer     bool
+	remoteHost   = "localhost"
+	ftDir        = ".fluffy-tribble"
+	ftSecretFile = "secret"
+	ftServerFile = "server"
+	ftClientFile = "client"
+)
 
 func main() {
 	flag.Usage = usage
